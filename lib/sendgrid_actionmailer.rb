@@ -101,7 +101,7 @@ module SendGridActionMailer
         a.disposition = disposition unless disposition.nil?
 
         has_content_id = part.header && part.has_content_id?
-        a.content_id = part.header['content_id'].value if has_content_id
+        a.content_id = part.header['content_id'].value.gsub(/\<|\>/, '') if has_content_id
       end
     end
 
@@ -122,12 +122,17 @@ module SendGridActionMailer
     def add_content(sendgrid_mail, mail)
       case mail.mime_type
       when 'text/plain'
-        sendgrid_mail.add_content(to_content(:plain, mail.body.decoded))
+        plain_text_content = to_content(:plain, mail.body.decoded)
+        sendgrid_mail.add_content(plain_text_content) if(plain_text_content.present?)
       when 'text/html'
-        sendgrid_mail.add_content(to_content(:html, mail.body.decoded))
+        html_content = to_content(:html, mail.body.decoded)
+        sendgrid_mail.add_content(html_content)
       when 'multipart/alternative', 'multipart/mixed', 'multipart/related'
-        sendgrid_mail.add_content(to_content(:plain, mail.text_part.decoded)) if mail.text_part
-        sendgrid_mail.add_content(to_content(:html, mail.html_part.decoded)) if mail.html_part
+        sendgrid_mail.add_content(to_content(:plain, mail.text_part.decoded)) if
+            mail.text_part and mail.text_part.body.present?
+
+        sendgrid_mail.add_content(to_content(:html, mail.html_part.decoded)) if
+            mail.html_part and mail.html_part.body.present?
 
         mail.attachments.each do |part|
           sendgrid_mail.add_attachment(to_attachment(part))
@@ -225,7 +230,8 @@ module SendGridActionMailer
     end
 
     def perform_send_request(email)
-      result = client.mail._('send').post(request_body: email.to_json) # ლ(ಠ益ಠლ) that API
+      body =  email.to_json
+      result = client.mail._('send').post(request_body: body) # ლ(ಠ益ಠლ) that API
 
       if result.status_code && result.status_code.start_with?('4')
         message = JSON.parse(result.body).fetch('errors').pop.fetch('message')
