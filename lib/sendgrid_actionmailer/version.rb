@@ -1,3 +1,3 @@
 module SendGridActionMailer
-  VERSION = '2.4.1-MOXI'.freeze
+  VERSION = '2.4.2-MOXI'.freeze
 end

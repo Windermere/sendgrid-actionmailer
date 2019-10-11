@@ -234,7 +234,9 @@ module SendGridActionMailer
       result = client.mail._('send').post(request_body: body) # ლ(ಠ益ಠლ) that API
 
       if result.status_code && result.status_code.start_with?('4')
-        message = JSON.parse(result.body).fetch('errors').pop.fetch('message')
+        message = (valid_json?(result.body)) ?
+                      JSON.parse(result.body).fetch('errors').pop.fetch('message') :
+                      result.body
         full_message = "Sendgrid delivery failed with #{result.status_code} #{message}"
 
         settings[:raise_delivery_errors] ? raise(SendgridDeliveryError, full_message) : warn(full_message)
@@ -242,5 +244,12 @@ module SendGridActionMailer
 
       result
     end
+
+    def valid_json?(string)
+      !!JSON.parse(string)
+    rescue JSON::ParserError
+      false
+    end
+    
   end
 end
