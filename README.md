@@ -24,6 +24,18 @@ Normal ActionMailer usage will now transparently be sent using SendGrid's Web AP
 
 ```mail(to: 'example@email.com', subject: 'email subject', body: 'email body')```
 
+### Mail Settings
+
+Mail settings, such as sandbox_mode, may be applied globally through the sendgrid_actionmailer_settings configuration.
+
+```ruby
+config.action_mailer.delivery_method = :sendgrid_actionmailer
+config.action_mailer.sendgrid_actionmailer_settings = {
+  api_key: ENV['SENDGRID_API_KEY'],
+  mail_settings: { sandbox_mode: { enable: true }}
+}
+```
+
 ### Dynamic API Key
 
 If you need to send mail for a number of Sendgrid accounts, you can set the API key for these as follows:
@@ -31,11 +43,12 @@ If you need to send mail for a number of Sendgrid accounts, you can set the API 
 
 ```ruby
 mail(to: 'example@email.com',
-     subject: 'email subject',
-     body: 'email body',
-     delivery_method_options: {
-       api_key: 'SENDGRID_API_KEY'
-     })
+  subject: 'email subject',
+  body: 'email body',
+  delivery_method_options: {
+    api_key: 'SENDGRID_API_KEY'
+  }
+)
 ```
 
 ## SendGrid Mail Extensions
@@ -86,7 +99,7 @@ The unsubscribe group to associate with this email.
 #### groups_to_display (array[integer])
 An array containing the unsubscribe groups that you would like to be displayed on the unsubscribe preferences page.
 
-```mail(to: 'example@email.com', subject: 'email subject', body: 'email body', asm: group_id: 99, groups_to_display: [4,5,6,7,8])```
+```mail(to: 'example@email.com', subject: 'email subject', body: 'email body', asm: { group_id: 99, groups_to_display: [4,5,6,7,8] })```
 
 ### ip_pool_name (string)
 The IP Pool that you would like to send this email from.
@@ -105,7 +118,7 @@ Indicates if this setting is enabled.
 ##### email (string)
 The email address that you would like to receive the BCC.
 
-```mail(to: 'example@email.com', subject: 'email subject', body: 'email body', mail_settings: {bcc: {enable: true, email: 'bcc@example.com}})```
+```mail(to: 'example@email.com', subject: 'email subject', body: 'email body', mail_settings: { bcc: { enable: true, email: 'bcc@example.com }})```
 
 #### bypass_list_management (object)
 Allows you to bypass all unsubscribe groups and suppressions to ensure that the email is delivered to every single recipient. This should only be used in emergencies when it is absolutely necessary that every recipient receives your email.
@@ -113,7 +126,7 @@ Allows you to bypass all unsubscribe groups and suppressions to ensure that the 
 ###### enable (boolean)
 Indicates if this setting is enabled.
 
-```mail(to: 'example@email.com', subject: 'email subject', body: 'email body',  mail_settings:{ bypass_list_management: { enable: true }})```
+```mail(to: 'example@email.com', subject: 'email subject', body: 'email body', mail_settings: { bypass_list_management: { enable: true }})```
 
 #### footer (object)
 The default footer that you would like included on every email.
@@ -127,7 +140,7 @@ The plain text content of your footer.
 ##### html (string)
 The HTML content of your footer.
 
-```mail(to: 'example@email.com', subject: 'email subject', body: 'email body',  mail_settings:{ footer: { enable: true, text: 'FOOTER', html: '<h1>FOOTER</h1>' }})```
+```mail(to: 'example@email.com', subject: 'email subject', body: 'email body', mail_settings: { footer: { enable: true, text: 'FOOTER', html: '<h1>FOOTER</h1>' }})```
 
 #### sandbox_mode (object)
 This allows you to send a test email to ensure that your request body is valid and formatted correctly.
@@ -135,7 +148,7 @@ This allows you to send a test email to ensure that your request body is valid a
 ##### enable (boolean)
 Indicates if this setting is enabled.
 
-```mail(to: 'example@email.com', subject: 'email subject', body: 'email body',  mail_settings:{ sandbox_mode: { enable: true }})```
+```mail(to: 'example@email.com', subject: 'email subject', body: 'email body', mail_settings: { sandbox_mode: { enable: true }})```
 
 #### spam_check (object)
 This allows you to test the content of your email for spam.
@@ -149,7 +162,8 @@ The threshold used to determine if your content qualifies as spam on a scale fro
 ##### post_to_url (string)
 An Inbound Parse URL that you would like a copy of your email along with the spam report to be sent to.
 
-```mail(to: 'example@email.com', subject: 'email subject', body: 'email body',  mail_settings:{ spam_check: {enable: true, threshold: 1, post_to_url: 'https://spamcatcher.sendgrid.com'}})```
+```mail(to: 'example@email.com', subject: 'email subject', body: 'email body', mail_settings: { spam_check: { enable: true, threshold: 1, post_to_url: 'https://spamcatcher.sendgrid.com' }})```
+
 ### tracking_settings(json)
 Settings to determine how you would like to track the metrics of how your recipients interact with your email.
 
@@ -159,10 +173,10 @@ Allows you to track whether a recipient clicked a link in your email.
 ##### enable (boolean)
 Indicates if this setting is enabled.
 
-#####  enable_text (boolean)
+##### enable_text (boolean)
 Indicates if this setting should be included in the text/plain portion of your email.
 
-```mail(to: 'example@email.com', subject: 'email subject', body: 'email body',  tracking_settings:{ enable: false, enable_text: false }})```
+```mail(to: 'example@email.com', subject: 'email subject', body: 'email body', tracking_settings: { click_tracking: { enable: false, enable_text: false }})```
 
 #### open_tracking (object)
 Allows you to track whether the email was opened or not, but including a single pixel image in the body of the content. When the pixel is loaded, we can log that the email was opened.
@@ -173,7 +187,7 @@ Indicates if this setting is enabled.
 ##### substitution_tag (string)
 Allows you to specify a substitution tag that you can insert in the body of your email at a location that you desire. This tag will be replaced by the open tracking pixel.
 
-```mail(to: 'example@email.com', subject: 'email subject', body: 'email body',  tracking_settings:{ enable: true, substitution_tag: 'Optional tag to replace with the open image in the body of the message' }})```
+```mail(to: 'example@email.com', subject: 'email subject', body: 'email body', tracking_settings: { open_tracking: { enable: true, substitution_tag: 'Optional tag to replace with the open image in the body of the message' }})```
 
 #### subscription_tracking (object)
 Allows you to insert a subscription management link at the bottom of the text and html bodies of your email. If you would like to specify the location of the link within your email, you may use the substitution_tag.
@@ -190,7 +204,7 @@ HTML to be appended to the email, with the subscription tracking link. You may c
 ##### substitution_tag (string)
 A tag that will be replaced with the unsubscribe URL. for example: [unsubscribe_url]. If this parameter is used, it will override both the text and html parameters. The URL of the link will be placed at the substitution tag’s location, with no additional formatting.
 
-```mail(to: 'example@email.com', subject: 'email subject', body: 'email body',  tracking_settings:{ enable: true, text: 'text to insert into the text/plain portion of the message', html: 'html to insert into the text/html portion of the message', substitution_tag: 'Optional tag to replace with the open image in the body of the message' }})```
+```mail(to: 'example@email.com', subject: 'email subject', body: 'email body', tracking_settings: { subscription_tracking: { enable: true, text: 'text to insert into the text/plain portion of the message', html: 'html to insert into the text/html portion of the message', substitution_tag: 'Optional tag to replace with the open image in the body of the message' }})```
 
 #### ganalytics (object)
 Allows you to enable tracking provided by Google Analytics.
@@ -213,20 +227,56 @@ Used to differentiate your campaign from advertisements.
 ##### utm_campaign (string)
 The name of the campaign.
 
-```mail(to: 'example@email.com', subject: 'email subject', body: 'email body',  tracking_settings:{ enable: true, utm_source: 'some source', utm_medium: 'some medium', utm_term: 'some term', utm_content: 'some content', utm_campaign: 'some campaign' }})```
+```mail(to: 'example@email.com', subject: 'email subject', body: 'email body', tracking_settings: { ganalytics: { enable: true, utm_source: 'some source', utm_medium: 'some medium', utm_term: 'some term', utm_content: 'some content', utm_campaign: 'some campaign' }})```
 
 ### dynamic_template_data (json)
 
-Data to provide for feeding the new dynamic templates in Sendgrid with valueable data. This also disables the following Unsubscribe links because of deprecation of substitutions in the new template implementaiton.  Variables are available within templates using [{{handlebar syntax}}](https://sendgrid.com/docs/for-developers/sending-email/using-handlebars).
+Data to provide for feeding the new dynamic templates in Sendgrid with valueable data. This also disables the following Unsubscribe links because of deprecation of substitutions in the new template implementaiton. Variables are available within templates using [{{handlebar syntax}}](https://sendgrid.com/docs/for-developers/sending-email/using-handlebars).
 
-```mail(to: 'example@email.com', subject: 'email subject', body: 'email body',  dynamic_template_data:{ variable_1: 'foo', variable_2: 'bar'})```
+```mail(to: 'example@email.com', subject: 'email subject', body: 'email body', dynamic_template_data: { variable_1: 'foo', variable_2: 'bar' })```
+
+### personalizations (json)
+
+Allows providing a customized [personalizations](https://sendgrid.com/docs/for-developers/sending-email/personalizations/) array for the v3 Mail Send endpoint. This allows customizing how an email is sent and also allows sending multiple different emails to different recipients with a single API call.
+
+The personalizations object supports:
+
+- "to", "cc", "bcc" - The recipients of your email.
+- "subject" - The subject of your email.
+- "headers" - Any headers you would like to include in your email.
+- "substitutions" - Any substitutions you would like to be made for your email.
+- "custom_args" - Any custom arguments you would like to include in your email.
+- "send_at" - A specific time that you would like your email to be sent.
+- "dynamic_template_data" - data for dynamic templates.
+
+The following should be noted about these personalization attributes:
+- to, cc, or bcc: if either to, cc, or bcc is also set when calling mail, those addresses provided to mail will be inserted as a separate personalization from the ones you provide. However, when using personalizations, you are not required to specify `to` when calling the mail function.
+- dynamic_template_data specified in the mail function will be merged with any dynamic_template_data specified in the personalizations object (with the personalizations object keys having priority).
+- Other fields set in the personalizations object will override any global parameters defined outside of personalizations.
+
+Also note that substitutions will not work with dynamic templates.
+
+Example usage:
+
+```
+mail(subject: 'default subject', 'email body', personalizations: [
+  { to: [{ email: 'example@example.com' }]},
+  { to: [{ email: 'example2@example.com' }]}
+])
+```
 
 ### Unsubscribe Links
 
-Sendgrid unfortunately uses <% %> for their default substitution syntax, which makes it incompatible with Rails templates. Their proposed solution is to use Personalization Substitutions with the v3 Mail Send Endpoint.  This gem makes that modification to make the following Rails friendly unsubscribe urls.
+Sendgrid unfortunately uses <% %> for their default substitution syntax, which makes it incompatible with Rails templates. Their proposed solution is to use Personalization Substitutions with the v3 Mail Send Endpoint. This gem makes that modification to make the following Rails friendly unsubscribe urls.
 
  * `<a href="%asm_group_unsubscribe_raw_url%">Unsubscribe</a>`
  * `<a href="%asm_global_unsubscribe_raw_url%">Unsubscribe from List</a>`
  * `<a href="%asm_preferences_raw_url%">Manage Email Preferences</a>`
 
 Note: This feature, and substitutions in general, do not work in combination with dynamic templates.
+
+## Testing
+
+The setting `perform_send_request` is available to disable sending for testing purposes. Setting perform_send_request false and return_response true enables the testing of the JSON API payload.
+
+
