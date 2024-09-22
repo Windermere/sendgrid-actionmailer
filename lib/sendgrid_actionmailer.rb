@@ -141,9 +141,25 @@ module SendGridActionMailer
         disposition = get_disposition(part)
         a.disposition = disposition unless disposition.nil?
 
-        has_content_id = part.header && part.has_content_id?
+        if disposition == 'inline'
+          # Extract content_id for inline attachments
+          content_id = extract_content_id(part)
+          a.content_id = content_id.gsub(/[<>]/, '') if content_id.present?
+        end
+      end
+    end
 
-        a.content_id = part.header['content_id'].field.content_id.gsub(/\<|\>/, '') if has_content_id
+    def extract_content_id(part)
+      # Try to extract content_id from different possible locations
+      if part.content_id.present?
+        part.content_id
+      elsif part.header && part.header['Content-ID']
+        part.header['Content-ID'].value
+      elsif part.cid.present?
+        part.cid
+      else
+        # Generate a content_id if none is present
+        part.filename
       end
     end
 
